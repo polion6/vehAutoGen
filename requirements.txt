@@ -1,0 +1,4 @@
+autogen
+chainlit
+openai
+python-dotenv
