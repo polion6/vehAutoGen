@@ -1,0 +1,36 @@
+"""Chainlit entrypoint for the diagnostic chatbot."""
+from __future__ import annotations
+
+import chainlit as cl
+
+from agents.coordinator import CoordinatorAgent
+from agents.specialists import (
+    EngineAgent,
+    TransmissionAgent,
+    BrakingAgent,
+    ElectricalAgent,
+    EmissionsAgent,
+)
+from agents.knowledge import KnowledgeAgent
+from agents.repair_procedure import RepairProcedureAgent
+
+
+# Instantiate agents
+_specialists = [
+    EngineAgent(),
+    TransmissionAgent(),
+    BrakingAgent(),
+    ElectricalAgent(),
+    EmissionsAgent(),
+]
+_knowledge = KnowledgeAgent()
+_repair = RepairProcedureAgent()
+coordinator = CoordinatorAgent(_specialists, _knowledge, _repair)
+
+
+@cl.on_message
+async def on_message(message: cl.Message) -> None:
+    """Handle incoming messages from the mechanic."""
+    report = coordinator.run_diagnosis(message.content)
+    await cl.Message(content=report).send()
+
