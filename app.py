@@ -28,6 +28,14 @@ _repair = RepairProcedureAgent()
 coordinator = CoordinatorAgent(_specialists, _knowledge, _repair)
 
 
+@cl.on_chat_start
+async def on_chat_start() -> None:
+    """Send a greeting when the chat session starts."""
+    await cl.Message(
+        content="Welcome to the diagnostic chatbot! How can I assist you today?"
+    ).send()
+
+
 @cl.on_message
 async def on_message(message: cl.Message) -> None:
     """Handle incoming messages from the mechanic."""
