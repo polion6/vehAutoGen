@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Sequence
 
-from autogen import AssistantAgent, GroupChat, GroupChatManager
+from autogen import AssistantAgent, GroupChat, GroupChatManager, token_count_utils
 
 from . import LLM_CONFIG
 
@@ -29,6 +29,7 @@ class CoordinatorAgent:
             system_message="Manage the diagnostic session and compile reports.",
             llm_config=LLM_CONFIG,
         )
+        self.last_token_count: int | None = None
 
     def run_diagnosis(self, issue: str) -> str:
         """Run a diagnostic session given an issue description."""
@@ -38,5 +39,12 @@ class CoordinatorAgent:
         )
         manager = GroupChatManager(groupchat=chat, llm_config=LLM_CONFIG)
         manager.run()
+        model = (
+            self.agent.llm_config.get("config_list", [{}])[0].get(
+                "model", "gpt-3.5-turbo-0613"
+            )
+        )
+        self.last_token_count = token_count_utils.count_token(chat.messages, model=model)
+        print(f"Token count for session: {self.last_token_count}")
         return chat.messages[-1]["content"]
 

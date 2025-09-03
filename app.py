@@ -41,4 +41,8 @@ async def on_message(message: cl.Message) -> None:
     """Handle incoming messages from the mechanic."""
     report = coordinator.run_diagnosis(message.content)
     await cl.Message(content=report).send()
+    if coordinator.last_token_count is not None:
+        await cl.Message(
+            content=f"Token count for session: {coordinator.last_token_count}"
+        ).send()
 
