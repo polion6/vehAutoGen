@@ -1,0 +1,12 @@
+name: vibeautogen
+channels:
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - autogen
+      - chainlit
+      - openai
+      - python-dotenv
+      - pytest
