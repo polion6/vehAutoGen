@@ -4,6 +4,8 @@ from __future__ import annotations
 from typing import Sequence
 
 from autogen import AssistantAgent, GroupChat, GroupChatManager, token_count_utils
+# Add the following imports if they exist in your framework:
+from autogen.termination import MaxMessageTermination, TextMentionTermination
 
 from . import LLM_CONFIG
 
@@ -26,16 +28,33 @@ class CoordinatorAgent:
         self.repair_agent = repair_agent
         self.agent = AssistantAgent(
             name="Coordinator",
-            system_message="Manage the diagnostic session and compile reports.",
+            system_message=(
+                "You are the Coordinator agent, responsible for managing the entire diagnostic session. "
+                "Your main tasks are:\n"
+                "- Guide and facilitate communication between all specialist agents throughout the session.\n"
+                "- Gather findings and responses from each specialist.\n"
+                "- Continuously monitor progress and maintain focus on diagnosing the provided issue.\n"
+                "- When a comprehensive diagnostic report is ready, clearly announce that the report is complete and explicitly terminate the discussion for all agents by saying "Terminate".\n"
+                "Do not allow further conversation after the report is delivered. Be concise, organized, and authoritative in your coordination."
+                ),
             llm_config=LLM_CONFIG,
         )
         self.last_token_count: int | None = None
 
-    def run_diagnosis(self, issue: str) -> str:
-        """Run a diagnostic session given an issue description."""
+    def run_diagnosis(self, issue: str, terminate_keyword: str = "TERMINATE") -> str:
+        """Run a diagnostic session given an issue description.
+        Terminates if the terminate_keyword is provided or if session count reaches 10.
+        """
         participants = [self.agent] + [s.agent for s in self.specialists]
+        
+        # Setup termination conditions
+        max_msg_termination = MaxMessageTermination(max_messages=10)
+        text_termination = TextMentionTermination("Terminate")
+        combined_termination = max_msg_termination | text_termination
+
         chat = GroupChat(
-            participants=participants, messages=[{"role": "user", "content": issue}]
+            participants=participants, messages=[{"role": "user", "content": issue}],
+            termination_condition=combined_termination  # Pass to GroupChat if supported
         )
         manager = GroupChatManager(groupchat=chat, llm_config=LLM_CONFIG)
         manager.run()
@@ -47,4 +66,3 @@ class CoordinatorAgent:
         self.last_token_count = token_count_utils.count_token(chat.messages, model=model)
         print(f"Token count for session: {self.last_token_count}")
         return chat.messages[-1]["content"]
-
