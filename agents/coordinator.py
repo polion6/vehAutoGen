@@ -34,7 +34,7 @@ class CoordinatorAgent:
                 "- Guide and facilitate communication between all specialist agents throughout the session.\n"
                 "- Gather findings and responses from each specialist.\n"
                 "- Continuously monitor progress and maintain focus on diagnosing the provided issue.\n"
-                "- When a comprehensive diagnostic report is ready, clearly announce that the report is complete and explicitly terminate the discussion for all agents.\n"
+                "- When a comprehensive diagnostic report is ready, clearly announce that the report is complete and explicitly terminate the discussion for all agents by saying "Terminate".\n"
                 "Do not allow further conversation after the report is delivered. Be concise, organized, and authoritative in your coordination."
                 ),
             llm_config=LLM_CONFIG,
@@ -49,7 +49,7 @@ class CoordinatorAgent:
         
         # Setup termination conditions
         max_msg_termination = MaxMessageTermination(max_messages=10)
-        text_termination = TextMentionTermination(terminate_keyword)
+        text_termination = TextMentionTermination("Terminate")
         combined_termination = max_msg_termination | text_termination
 
         chat = GroupChat(
