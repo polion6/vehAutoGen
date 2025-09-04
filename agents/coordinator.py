@@ -1,6 +1,7 @@
 """Coordinator agent that orchestrates diagnostics."""
 from __future__ import annotations
 
+import logging
 from typing import Sequence
 
 from autogen import AssistantAgent, GroupChat, GroupChatManager, token_count_utils
@@ -28,6 +29,8 @@ from . import LLM_CONFIG
 from .specialists import SpecialistAgent
 from .knowledge import KnowledgeAgent
 from .repair_procedure import RepairProcedureAgent
+
+logger = logging.getLogger(__name__)
 
 
 class CoordinatorAgent:
@@ -58,7 +61,9 @@ class CoordinatorAgent:
         )
         self.last_token_count: int | None = None
 
-    def run_diagnosis(self, issue: str, terminate_keyword: str = "TERMINATE") -> str:
+    def run_diagnosis(
+        self, issue: str, terminate_keyword: str = "TERMINATE"
+    ) -> tuple[str, int]:
         """Run a diagnostic session given an issue description.
 
         The session ends when ``terminate_keyword`` is mentioned in the
@@ -82,6 +87,8 @@ class CoordinatorAgent:
                 "model", "gpt-3.5-turbo-0613"
             )
         )
-        self.last_token_count = token_count_utils.count_token(chat.messages, model=model)
-        print(f"Token count for session: {self.last_token_count}")
-        return chat.messages[-1]["content"]
+        self.last_token_count = token_count_utils.count_token(
+            chat.messages, model=model
+        )
+        logger.info("Token count for session: %s", self.last_token_count)
+        return chat.messages[-1]["content"], self.last_token_count

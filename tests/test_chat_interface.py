@@ -50,9 +50,9 @@ def test_chat_interface_responds() -> None:
             self.groupchat.messages.append({"role": "assistant", "content": "Mocked response"})
 
     with patch("agents.coordinator.GroupChat", DummyChat), \
-         patch("agents.coordinator.GroupChatManager", DummyManager), \
+        patch("agents.coordinator.GroupChatManager", DummyManager), \
         patch("agents.coordinator.token_count_utils.count_token", return_value=0):
-        result = coordinator.run_diagnosis(issue)
+        result, _ = coordinator.run_diagnosis(issue)
 
     assert "Mocked response" in result
 
@@ -106,7 +106,9 @@ def test_custom_termination_keyword() -> None:
          patch("agents.coordinator.TextMentionTermination", DummyTextMentionTermination), \
          patch("agents.coordinator.MaxMessageTermination", DummyMaxMessageTermination), \
          patch("agents.coordinator.token_count_utils.count_token", return_value=0):
-        result = coordinator.run_diagnosis(issue, terminate_keyword=terminate_keyword)
+        result, _ = coordinator.run_diagnosis(
+            issue, terminate_keyword=terminate_keyword
+        )
 
     assert captured["keyword"] == terminate_keyword
     assert terminate_keyword in result

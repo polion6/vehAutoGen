@@ -39,10 +39,7 @@ async def on_chat_start() -> None:
 @cl.on_message
 async def on_message(message: cl.Message) -> None:
     """Handle incoming messages from the mechanic."""
-    report = coordinator.run_diagnosis(message.content)
+    report, token_count = coordinator.run_diagnosis(message.content)
     await cl.Message(content=report).send()
-    if coordinator.last_token_count is not None:
-        await cl.Message(
-            content=f"Token count for session: {coordinator.last_token_count}"
-        ).send()
+    await cl.Message(content=f"Token count for session: {token_count}").send()
 
