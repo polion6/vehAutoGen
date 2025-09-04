@@ -26,7 +26,15 @@ class CoordinatorAgent:
         self.repair_agent = repair_agent
         self.agent = AssistantAgent(
             name="Coordinator",
-            system_message="Manage the diagnostic session and compile reports.",
+            system_message=(
+                "You are the Coordinator agent, responsible for managing the entire diagnostic session. "
+                "Your main tasks are:\n"
+                "- Guide and facilitate communication between all specialist agents throughout the session.\n"
+                "- Gather findings and responses from each specialist.\n"
+                "- Continuously monitor progress and maintain focus on diagnosing the provided issue.\n"
+                "- When a comprehensive diagnostic report is ready, clearly announce that the report is complete and explicitly terminate the discussion for all agents.\n"
+                "Do not allow further conversation after the report is delivered. Be concise, organized, and authoritative in your coordination."
+                ),
             llm_config=LLM_CONFIG,
         )
         self.last_token_count: int | None = None
