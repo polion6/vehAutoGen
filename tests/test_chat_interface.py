@@ -36,8 +36,8 @@ def test_chat_interface_responds() -> None:
     issue = "there is a knocking sound in my toyota camry. How to i fix it?"
 
     class DummyChat:
-        def __init__(self, participants, messages, termination_condition=None):
-            self.participants = participants
+        def __init__(self, agents, messages, termination_condition=None, **kwargs):
+            self.agents = agents
             self.messages = messages
             self.termination_condition = termination_condition
 
@@ -46,7 +46,7 @@ def test_chat_interface_responds() -> None:
             self.groupchat = groupchat
             self.llm_config = llm_config
 
-        def run(self):
+        def run(self, *args, **kwargs):
             self.groupchat.messages.append({"role": "assistant", "content": "Mocked response"})
 
     with patch("agents.coordinator.GroupChat", DummyChat), \
@@ -71,8 +71,8 @@ def test_custom_termination_keyword() -> None:
     terminate_keyword = "STOP_NOW"
 
     class DummyChat:
-        def __init__(self, participants, messages, termination_condition=None):
-            self.participants = participants
+        def __init__(self, agents, messages, termination_condition=None, **kwargs):
+            self.agents = agents
             self.messages = messages
             self.termination_condition = termination_condition
 
@@ -81,7 +81,7 @@ def test_custom_termination_keyword() -> None:
             self.groupchat = groupchat
             self.llm_config = llm_config
 
-        def run(self):
+        def run(self, *args, **kwargs):
             # Simulate assistant using the terminate keyword in its message
             self.groupchat.messages.append({"role": "assistant", "content": terminate_keyword})
 

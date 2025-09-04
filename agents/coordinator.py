@@ -76,12 +76,21 @@ class CoordinatorAgent:
         text_termination = TextMentionTermination(terminate_keyword)
         combined_termination = max_msg_termination | text_termination
 
-        chat = GroupChat(
-            participants=participants, messages=[{"role": "user", "content": issue}],
-            termination_condition=combined_termination  # Pass to GroupChat if supported
-        )
+        chat_kwargs = {
+            "agents": participants,
+            "messages": [{"role": "user", "content": issue}],
+        }
+
+        try:
+            chat = GroupChat(
+                termination_condition=combined_termination,
+                **chat_kwargs,
+            )
+        except TypeError:
+            chat = GroupChat(**chat_kwargs)
+
         manager = GroupChatManager(groupchat=chat, llm_config=LLM_CONFIG)
-        manager.run()
+        manager.run(max_turns=10)
         model = (
             self.agent.llm_config.get("config_list", [{}])[0].get(
                 "model", "gpt-3.5-turbo-0613"
