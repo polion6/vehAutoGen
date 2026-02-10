@@ -1,4 +1,4 @@
-# vibeAutoGen
+# vehAutoGen
 
 Diagnostic chatbot project built with [AutoGen](https://github.com/microsoft/autogen) and [Chainlit](https://github.com/Chainlit/chainlit).
 
